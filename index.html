@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameGrid</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Gamer-themed styling */
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --accent-color: #00ffcc;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            text-align: center;
+            padding: 3rem 1rem;
+            background-color: var(--surface-color);
+            border-bottom: 3px solid var(--accent-color);
+            box-shadow: 0 4px 15px rgba(0, 255, 204, 0.1);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 3rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            padding: 3rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .game-card {
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid #333;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 25px rgba(0, 255, 204, 0.15);
+        }
+
+        .game-card h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        .game-card .genre {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .play-btn {
+            display: inline-block;
+            background-color: transparent;
+            color: var(--accent-color);
+            text-decoration: none;
+            padding: 0.75rem 2rem;
+            border: 2px solid var(--accent-color);
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1rem;
+            text-transform: uppercase;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .play-btn:hover {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // 1. Define the game data
+        const gameList = [
+            { id: 1, title: "Neon Cyber Rider", genre: "Racing" },
+            { id: 2, title: "Galactic Defender", genre: "Arcade Shooter" },
+            { id: 3, title: "Dungeon Depths", genre: "RPG" },
+            { id: 4, title: "Block Stacker Pro", genre: "Puzzle" },
+            { id: 5, title: "Zombie Survival", genre: "Action" },
+            { id: 6, title: "Pixel Platformer", genre: "Platformer" }
+        ];
+
+        // 2. Create the GameGrid component
+        function GameGrid() {
+            return (
+                <div>
+                    <header className="header">
+                        <h1>🎮 GameGrid</h1>
+                        <p>Select your next digital adventure</p>
+                    </header>
+                    
+                    <main className="grid-container">
+                        {gameList.map(game => (
+                            <article key={game.id} className="game-card">
+                                <h2>{game.title}</h2>
+                                <div className="genre">{game.genre}</div>
+                                {/* Placeholder link using "#" */}
+                                <a href={`#play-${game.id}`} className="play-btn">
+                                    Start Game
+                                </a>
+                            </article>
+                        ))}
+                    </main>
+                </div>
+            );
+        }
+
+        // 3. Render the application to the DOM
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<GameGrid />);
+    </script>
+
+</body>
+</html>
