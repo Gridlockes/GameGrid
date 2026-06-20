@@ -1,156 +1,360 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GameGrid</title>
-    
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameGrid — Select Your Game</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzFiMTAzMCIvPjxwYXRoIGQ9Ik05IDEyaDE0YTYgNiAwIDAgMSA2IDYgNCA0IDAgMCAxLTcuMyAyLjJMMjAgMTloLThsLTEuNyAxLjJBNCA0IDAgMCAxIDMgMThhNiA2IDAgMCAxIDYtNloiIGZpbGw9IiNmZjNkODEiLz48cmVjdCB4PSI2LjUiIHk9IjE1LjUiIHdpZHRoPSI1IiBoZWlnaHQ9IjEuOCIgcng9Ii40IiBmaWxsPSIjMWIxMDMwIi8+PHJlY3QgeD0iOC4xIiB5PSIxMy45IiB3aWR0aD0iMS44IiBoZWlnaHQ9IjUiIHJ4PSIuNCIgZmlsbD0iIzFiMTAzMCIvPjxjaXJjbGUgY3g9IjIxLjUiIGN5PSIxNSIgcj0iMS41IiBmaWxsPSIjMzRlMWQ2Ii8+PGNpcmNsZSBjeD0iMjQiIGN5PSIxNy40IiByPSIxLjUiIGZpbGw9IiNmZmQyM2YiLz48L3N2Zz4K">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#150c26;
+    --bg-2:#1b1030;
+    --panel:#221540;
+    --panel-2:#2a1a4f;
+    --line:rgba(255,255,255,.09);
+    --ink:#efe9ff;
+    --ink-dim:#a99fd0;
+    --magenta:#ff3d81;
+    --cyan:#34e1d6;
+    --amber:#ffd23f;
+    --shadow:0 18px 40px -18px rgba(0,0,0,.8);
+  }
 
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(1100px 600px at 85% -10%, rgba(255,61,129,.16), transparent 60%),
+      radial-gradient(900px 600px at 5% 110%, rgba(52,225,214,.14), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Space Grotesk",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
 
-    <style>
-        /* Gamer-themed styling */
-        :root {
-            --bg-color: #121212;
-            --surface-color: #1e1e1e;
-            --accent-color: #00ffcc;
-            --text-main: #ffffff;
-            --text-muted: #a0a0a0;
-        }
+  /* faint pixel grid — the literal "grid" in GameGrid */
+  body::before{
+    content:"";
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size:34px 34px;
+    mask-image:radial-gradient(ellipse 90% 80% at 50% 30%, #000 40%, transparent 100%);
+  }
+  /* very subtle scanlines */
+  body::after{
+    content:"";
+    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.4;
+    background:repeating-linear-gradient(to bottom, rgba(0,0,0,.18) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;
+  }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+  .wrap{position:relative; z-index:1; max-width:1180px; margin:0 auto; padding:26px clamp(18px,4vw,40px) 80px}
 
-        .header {
-            text-align: center;
-            padding: 3rem 1rem;
-            background-color: var(--surface-color);
-            border-bottom: 3px solid var(--accent-color);
-            box-shadow: 0 4px 15px rgba(0, 255, 204, 0.1);
-        }
+  /* ---- top bar ---- */
+  .bar{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap}
+  .brand{display:flex; align-items:center; gap:14px}
+  .brand-badge{
+    width:46px; height:46px; border-radius:12px;
+    background:linear-gradient(150deg,var(--magenta),#c61f63);
+    display:grid; place-items:center; box-shadow:0 8px 22px -8px rgba(255,61,129,.7);
+    flex:none;
+  }
+  .brand-badge svg{width:30px; height:30px}
+  .wordmark{font-family:"Silkscreen",monospace; font-weight:700; font-size:clamp(20px,3.4vw,30px); letter-spacing:1px; line-height:1}
+  .wordmark .g1{color:var(--ink)}
+  .wordmark .g2{color:var(--cyan)}
+  .tagsub{font-family:"Space Mono",monospace; font-size:11px; color:var(--ink-dim); letter-spacing:3px; margin-top:6px}
 
-        .header h1 {
-            margin: 0;
-            font-size: 3rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
+  .credits{
+    font-family:"Space Mono",monospace; font-size:12px; letter-spacing:1px;
+    color:var(--ink-dim);
+    border:1px solid var(--line); border-radius:999px;
+    padding:9px 16px; background:rgba(255,255,255,.02);
+    display:flex; align-items:center; gap:9px;
+  }
+  .credits b{color:var(--amber)}
+  .coin{width:9px; height:9px; border-radius:50%; background:var(--amber); box-shadow:0 0 10px var(--amber); animation:blink 1.4s steps(2) infinite}
+  @keyframes blink{50%{opacity:.25}}
 
-        .header p {
-            color: var(--text-muted);
-            font-size: 1.2rem;
-        }
+  /* ---- hero ---- */
+  .hero{margin:46px 0 30px; max-width:720px}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:"Silkscreen",monospace; font-size:11px; letter-spacing:2px;
+    color:var(--cyan); margin-bottom:18px;
+  }
+  .eyebrow::before{content:""; width:26px; height:2px; background:var(--cyan)}
+  .hero h1{
+    margin:0; font-size:clamp(30px,6vw,52px); line-height:1.04; font-weight:700; letter-spacing:-.5px;
+  }
+  .hero h1 .flash{color:var(--magenta)}
+  .hero p{margin:16px 0 0; color:var(--ink-dim); font-size:clamp(15px,2vw,17px); max-width:54ch}
+  .keyhint{
+    margin-top:22px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    font-family:"Space Mono",monospace; font-size:12.5px; color:var(--ink-dim);
+  }
+  kbd{
+    font-family:"Space Mono",monospace; font-size:12px; color:var(--ink);
+    background:var(--panel); border:1px solid var(--line); border-bottom-width:2px;
+    border-radius:6px; padding:3px 8px; min-width:24px; text-align:center;
+  }
 
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            padding: 3rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+  /* ---- grid ---- */
+  .grid{
+    display:grid; gap:18px; margin-top:8px;
+    grid-template-columns:repeat(auto-fill, minmax(248px, 1fr));
+  }
 
-        .game-card {
-            background-color: var(--surface-color);
-            border-radius: 12px;
-            padding: 2rem;
-            text-align: center;
-            border: 1px solid #333;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-        }
+  .card{
+    position:relative; display:flex; flex-direction:column;
+    background:linear-gradient(180deg,var(--panel),var(--bg-2));
+    border:1px solid var(--line); border-radius:16px; overflow:hidden;
+    text-decoration:none; color:inherit;
+    box-shadow:var(--shadow);
+    transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    outline:none;
+    opacity:0; transform:translateY(14px);
+    animation:rise .5s cubic-bezier(.2,.8,.2,1) forwards;
+    animation-delay:calc(var(--i) * 55ms);
+  }
+  @keyframes rise{to{opacity:1; transform:none}}
 
-        .game-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--accent-color);
-            box-shadow: 0 10px 25px rgba(0, 255, 204, 0.15);
-        }
+  .cover{
+    position:relative; aspect-ratio:16/10; overflow:hidden;
+    background:
+      radial-gradient(120% 120% at 20% 0%, hsl(var(--hue) 90% 60% / .9), transparent 60%),
+      radial-gradient(120% 120% at 100% 100%, hsl(calc(var(--hue) + 40) 85% 55% / .85), transparent 55%),
+      #0d0820;
+  }
+  .cover::before{ /* mini-screen scanlines + dot grid */
+    content:""; position:absolute; inset:0;
+    background-image:
+      radial-gradient(rgba(255,255,255,.16) 1px, transparent 1.4px);
+    background-size:11px 11px; opacity:.5;
+    mix-blend-mode:overlay;
+  }
+  .cover svg{
+    position:absolute; inset:0; margin:auto; width:46%; height:46%;
+    color:#fff; opacity:.95; filter:drop-shadow(0 4px 10px rgba(0,0,0,.45));
+  }
+  .cover .num{
+    position:absolute; top:10px; left:12px;
+    font-family:"Silkscreen",monospace; font-size:11px; color:rgba(255,255,255,.78); letter-spacing:1px;
+  }
 
-        .game-card h2 {
-            margin-top: 0;
-            font-size: 1.5rem;
-        }
+  .meta{padding:16px 16px 18px; display:flex; flex-direction:column; gap:10px; flex:1}
+  .title{font-size:18px; font-weight:700; letter-spacing:-.2px}
+  .tags{display:flex; gap:8px; flex-wrap:wrap; margin-top:auto; align-items:center}
+  .tag{
+    font-family:"Space Mono",monospace; font-size:10.5px; letter-spacing:.5px;
+    color:var(--ink-dim); border:1px solid var(--line); border-radius:6px; padding:3px 8px;
+  }
+  .tag.genre{color:var(--cyan); border-color:rgba(52,225,214,.35)}
+  .play{
+    margin-left:auto; font-family:"Silkscreen",monospace; font-size:10px; letter-spacing:1px;
+    color:var(--magenta); display:flex; align-items:center; gap:6px; opacity:0; transition:opacity .18s;
+  }
+  .play::after{content:"▸"}
 
-        .game-card .genre {
-            color: var(--text-muted);
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+  /* hover + focus = arcade selection state */
+  .card:hover, .card:focus-visible{
+    transform:translateY(-6px);
+    border-color:rgba(255,61,129,.55);
+    box-shadow:0 26px 50px -20px rgba(255,61,129,.5), var(--shadow);
+  }
+  .card:hover .play, .card:focus-visible .play{opacity:1}
+  .card:hover .title, .card:focus-visible .title{color:var(--magenta)}
 
-        .play-btn {
-            display: inline-block;
-            background-color: transparent;
-            color: var(--accent-color);
-            text-decoration: none;
-            padding: 0.75rem 2rem;
-            border: 2px solid var(--accent-color);
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 1rem;
-            text-transform: uppercase;
-            transition: background-color 0.2s ease, color 0.2s ease;
-        }
+  /* reticle corner brackets on the focused card */
+  .card::after{
+    content:""; position:absolute; inset:7px; border-radius:11px; pointer-events:none;
+    opacity:0; transition:opacity .15s;
+    background:
+      linear-gradient(var(--cyan),var(--cyan)) left top/16px 2px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) left top/2px 16px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) right top/16px 2px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) right top/2px 16px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) left bottom/16px 2px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) left bottom/2px 16px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) right bottom/16px 2px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) right bottom/2px 16px no-repeat;
+  }
+  .card:focus-visible::after{opacity:1}
 
-        .play-btn:hover {
-            background-color: var(--accent-color);
-            color: var(--bg-color);
-        }
-    </style>
+  /* ---- footer ---- */
+  .foot{
+    margin-top:54px; padding-top:22px; border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap;
+    font-family:"Space Mono",monospace; font-size:12px; color:var(--ink-dim);
+  }
+  .foot a{color:var(--cyan); text-decoration:none}
+  .foot a:hover{text-decoration:underline}
+
+  @media (max-width:560px){
+    .grid{grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:14px}
+    .keyhint .only-wide{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important; transition:none !important}
+    html{scroll-behavior:auto}
+    .card{opacity:1; transform:none}
+  }
+</style>
 </head>
 <body>
+<div class="wrap">
 
-    <div id="root"></div>
+  <header class="bar">
+    <div class="brand">
+      <span class="brand-badge" aria-hidden="true">
+        <svg viewBox="0 0 32 32"><path d="M9 12h14a6 6 0 0 1 6 6 4 4 0 0 1-7.3 2.2L20 19h-8l-1.7 1.2A4 4 0 0 1 3 18a6 6 0 0 1 6-6Z" fill="#fff"/><rect x="6.5" y="15.5" width="5" height="1.8" rx=".4" fill="#c61f63"/><rect x="8.1" y="13.9" width="1.8" height="5" rx=".4" fill="#c61f63"/><circle cx="21.5" cy="15" r="1.5" fill="#34e1d6"/><circle cx="24" cy="17.4" r="1.5" fill="#ffd23f"/></svg>
+      </span>
+      <div>
+        <div class="wordmark"><span class="g1">GAME</span><span class="g2">GRID</span></div>
+        <div class="tagsub">ARCADE&nbsp;//&nbsp;SELECT</div>
+      </div>
+    </div>
+    <div class="credits"><span class="coin" aria-hidden="true"></span>CREDITS <b>&infin;</b></div>
+  </header>
 
-    <script type="text/babel">
-        // 1. Define the game data
-        const gameList = [
-            { id: 1, title: "Neon Cyber Rider", genre: "Racing" },
-            { id: 2, title: "Galactic Defender", genre: "Arcade Shooter" },
-            { id: 3, title: "Dungeon Depths", genre: "RPG" },
-            { id: 4, title: "Block Stacker Pro", genre: "Puzzle" },
-            { id: 5, title: "Zombie Survival", genre: "Action" },
-            { id: 6, title: "Pixel Platformer", genre: "Platformer" }
-        ];
+  <section class="hero">
+    <span class="eyebrow">SELECT YOUR GAME</span>
+    <h1>Pick a cabinet.<br><span class="flash">Press start.</span></h1>
+    <p>Every title in the grid is its own self-contained machine. Choose one to drop a coin — the game loads on its own screen.</p>
+    <div class="keyhint">
+      <span class="only-wide">NAVIGATE</span>
+      <kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd>
+      <span>·</span>
+      <span>LAUNCH</span> <kbd>Enter</kbd>
+    </div>
+  </section>
 
-        // 2. Create the GameGrid component
-        function GameGrid() {
-            return (
-                <div>
-                    <header className="header">
-                        <h1>🎮 GameGrid</h1>
-                        <p>Select your next digital adventure</p>
-                    </header>
-                    
-                    <main className="grid-container">
-                        {gameList.map(game => (
-                            <article key={game.id} className="game-card">
-                                <h2>{game.title}</h2>
-                                <div className="genre">{game.genre}</div>
-                                {/* Placeholder link using "#" */}
-                                <a href={`#play-${game.id}`} className="play-btn">
-                                    Start Game
-                                </a>
-                            </article>
-                        ))}
-                    </main>
-                </div>
-            );
-        }
+  <main class="grid" id="grid" aria-label="Game selection">
 
-        // 3. Render the application to the DOM
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<GameGrid />);
-    </script>
+    <a class="card" style="--i:0; --hue:330" href="games/neon-snake.html">
+      <div class="cover"><span class="num">01</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h7a3 3 0 0 1 3 3 3 3 0 0 1-3 3H8a3 3 0 0 0-3 3 3 3 0 0 0 3 3h9"/><circle cx="19" cy="5" r="1.4" fill="currentColor"/></svg>
+      </div>
+      <div class="meta">
+        <div class="title">Neon Snake</div>
+        <div class="tags"><span class="tag genre">ARCADE</span><span class="tag">1P</span><span class="play">PLAY</span></div>
+      </div>
+    </a>
 
+    <a class="card" style="--i:1; --hue:265" href="games/grid-runner.html">
+      <div class="cover"><span class="num">02</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="1.6" fill="currentColor"/><path d="M11 9l-3 2 1 5m2-7l3 1 2 3m-7-4l-3 7m6-3l2 6"/></svg>
+      </div>
+      <div class="meta">
+        <div class="title">Grid Runner</div>
+        <div class="tags"><span class="tag genre">PLATFORMER</span><span class="tag">1P</span><span class="play">PLAY</span></div>
+      </div>
+    </a>
+
+    <a class="card" style="--i:2; --hue:200" href="games/pixel-siege.html">
+      <div class="cover"><span class="num">03</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9l3 2 2-4 3 3 3-3 2 4 3-2v11z"/><path d="M4 20h16M10 20v-4h4v4"/></svg>
+      </div>
+      <div class="meta">
+        <div class="title">Pixel Siege</div>
+        <div class="tags"><span class="tag genre">STRATEGY</span><span class="tag">1-2P</span><span class="play">PLAY</span></div>
+      </div>
+    </a>
+
+    <a class="card" style="--i:3; --hue:20" href="games/astro-drift.html">
+      <div class="cover"><span class="num">04</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 2 5 6 5 10l-3 2h-4l-3-2c0-4 2-8 5-10z"/><circle cx="12" cy="10" r="1.6"/><path d="M9 17l-2 4m8-4l2 4"/></svg>
+      </div>
+      <div class="meta">
+        <div class="title">Astro Drift</div>
+        <div class="tags"><span class="tag genre">RACING</span><span class="tag">1-4P</span><span class="play">PLAY</span></div>
+      </div>
+    </a>
+
+    <a class="card" style="--i:4; --hue:155" href="games/cipher.html">
+      <div class="cover"><span class="num">05</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15" r="1.3" fill="currentColor"/></svg>
+      </div>
+      <div class="meta">
+        <div class="title">Cipher</div>
+        <div class="tags"><span class="tag genre">PUZZLE</span><span class="tag">1P</span><span class="play">PLAY</span></div>
+      </div>
+    </a>
+
+    <a class="card" style="--i:5; --hue:285" href="games/dungeon-bytes.html">
+      <div class="cover"><span class="num">06</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a7 7 0 0 0-7 7v5l2 1v3h3v-2h4v2h3v-3l2-1v-5a7 7 0 0 0-7-7z"/><circle cx="9.5" cy="11" r="1.3" fill="currentColor"/><circle cx="14.5" cy="11" r="1.3" fill="currentColor"/></svg>
+      </div>
+      <div class="meta">
+        <div class="title">Dungeon Bytes</div>
+        <div class="tags"><span class="tag genre">ROGUELIKE</span><span class="tag">1P</span><span class="play">PLAY</span></div>
+      </div>
+    </a>
+
+    <a class="card" style="--i:6; --hue:48" href="games/block-storm.html">
+      <div class="cover"><span class="num">07</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="9" y="14" width="6" height="6" rx="1"/></svg>
+      </div>
+      <div class="meta">
+        <div class="title">Block Storm</div>
+        <div class="tags"><span class="tag genre">PUZZLE</span><span class="tag">1-2P</span><span class="play">PLAY</span></div>
+      </div>
+    </a>
+
+    <a class="card" style="--i:7; --hue:175" href="games/laser-pong.html">
+      <div class="cover"><span class="num">08</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7v10M19 7v10"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><path d="M9 9l3 3-3 3"/></svg>
+      </div>
+      <div class="meta">
+        <div class="title">Laser Pong</div>
+        <div class="tags"><span class="tag genre">ARCADE</span><span class="tag">2P</span><span class="play">PLAY</span></div>
+      </div>
+    </a>
+
+  </main>
+
+  <footer class="foot">
+    <span>GAMEGRID&nbsp;v1.0&nbsp;//&nbsp;8&nbsp;CABINETS&nbsp;ONLINE</span>
+    <span>Built for the home arcade · <a href="#top">back to top</a></span>
+  </footer>
+
+</div>
+
+<script>
+  // Arrow-key navigation across the grid, like an arcade select screen.
+  const cards = Array.from(document.querySelectorAll('.card'));
+
+  function columns(){
+    // count cards sharing the top row's y-position
+    if (!cards.length) return 1;
+    const firstTop = cards[0].offsetTop;
+    let n = 0;
+    for (const c of cards){ if (c.offsetTop === firstTop) n++; else break; }
+    return Math.max(1, n);
+  }
+
+  document.getElementById('grid').addEventListener('keydown', (e) => {
+    const idx = cards.indexOf(document.activeElement);
+    if (idx === -1) return;
+    const cols = columns();
+    let next = null;
+    switch (e.key){
+      case 'ArrowRight': next = idx + 1; break;
+      case 'ArrowLeft':  next = idx - 1; break;
+      case 'ArrowDown':  next = idx + cols; break;
+      case 'ArrowUp':    next = idx - cols; break;
+      default: return;
+    }
+    e.preventDefault();
+    if (next >= 0 && next < cards.length) cards[next].focus();
+  });
+</script>
 </body>
 </html>
